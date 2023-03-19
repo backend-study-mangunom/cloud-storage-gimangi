@@ -39,9 +39,11 @@ pipeline {
       steps {
         // 이미지 ECR에 푸시
         script {
-          sh "rm -f ~/.dockercfg ~/.docker/config.json || true"
-
-          docker.withRegistry("https://${DOCKER_REGISTRY}", "ecr-public:${REGION}:${REGISTRY_CREDENTIALS}") {
+          sh """
+            rm -f ~/.dockercfg ~/.docker/config.json || true
+            aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${DOCKER_REGISTRY}
+          """
+          docker.withRegistry("https://${DOCKER_REGISTRY}", "ecr-public") {
             app.push("${env.BUILD_NUMBER}")
             app.push("latest")
           }
