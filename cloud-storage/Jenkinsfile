@@ -1,0 +1,74 @@
+pipeline {
+  // with plugins: docker-pipeline, aws global configuration
+
+  agent any
+
+  environment {
+    DOCKER_REGISTRY = "public.ecr.aws/z0t1y8w5"
+    DOCKER_APP_NAME = "cloud-storage"
+    IMAGE_TAG = "latest"
+    // jenkins에서 ECR 권한이 있는 IMA credentials를 등록해야합니다.
+    REGISTRY_CREDENTIALS = "gimangi-ecr-credentials"
+  }
+
+  stages {
+    stage("Clone Repository") {
+      steps {
+        // 깃허브 레포지토리 풀
+        checkout scm
+      }
+    }
+
+    stage("Build JAR") {
+      steps {
+        // 디렉토리 이동 및 빌드
+        sh """
+          cd cloud-storage
+          ./gradlew clean build
+        """
+      }
+    }
+
+    stage("Build Image") {
+      steps {
+        // 이미지 빌드
+        app = docker.build("cloud-storage:${VERSION}")
+      }
+    }
+
+    stage("Push Image") {
+      steps {
+        // 이미지 ECR에 푸시
+        docker.withRegistry("${DOCKER_REGISTRY}/${DOCKER_APP_NAME}", "ecr:ap-northeast-2:${REGISTRY_CREDENTIALS}") {
+          app.push("${VERSION}")
+          app.push("latest")
+        }
+      }
+    }
+
+//    stage('Blue-Green Deploy') {
+//      steps {
+//        script {
+//          // 현재 활성화된 환경 (blue 또는 green)을 확인합니다.
+//          def active_env = sh(script: "echo \$ACTIVE_ENV", returnStdout: true).trim()
+//
+//          if (active_env == 'blue') {
+//            // green 환경으로 배포합니다.
+//            sh "DOCKER_APP_NAME=${DOCKER_APP_NAME} DOCKER_REGISTRY=${DOCKER_REGISTRY} IMAGE_TAG=${IMAGE_TAG} docker-compose -f docker-compose.green.yml up -d"
+//            // NGINX 설정을 업데이트하여 트래픽을 green 환경으로 전환합니다.
+//            sh "cp nginx.green.conf /etc/nginx/conf.d/default.conf && sudo service nginx reload"
+//            // 활성화된 환경을 green으로 변경합니다.
+//            sh "export ACTIVE_ENV=green"
+//          } else {
+//            // blue 환경으로 배포합니다.
+//            sh "DOCKER_APP_NAME=${DOCKER_APP_NAME} DOCKER_REGISTRY=${DOCKER_REGISTRY} IMAGE_TAG=${IMAGE_TAG} docker-compose -f docker-compose.blue.yml up -d"
+//            // NGINX 설정을 업데이트하여 트래픽을 blue 환경으로 전환합니다.
+//            sh "cp nginx.blue.conf /etc/nginx/conf.d/default.conf && sudo service nginx reload"
+//            // 활성화된 환경을 blue로 변경합니다.
+//            sh "export ACTIVE_ENV=blue"
+//          }
+//        }
+//      }
+//    }
+  }
+}

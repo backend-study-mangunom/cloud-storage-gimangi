@@ -3,5 +3,5 @@
 
 ## used
 - Web : Spring Webflux
-- ORM : Spring Data MongoDB
+- ODM : Spring Data MongoDB
 - Security : Spring Security + Jwt
