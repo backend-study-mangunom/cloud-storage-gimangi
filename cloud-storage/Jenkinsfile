@@ -9,6 +9,7 @@ pipeline {
     IMAGE_TAG = "latest"
     // jenkins에서 ECR 권한이 있는 IMA credentials를 등록해야합니다.
     REGISTRY_CREDENTIALS = "gimangi-ecr-credentials"
+    PATH = "/usr/bin:${env.PATH}"
   }
 
   stages {
