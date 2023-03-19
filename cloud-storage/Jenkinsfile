@@ -32,16 +32,20 @@ pipeline {
     stage("Build Image") {
       steps {
         // 이미지 빌드
-        app = docker.build("cloud-storage:${VERSION}")
+        script {
+          app = docker.build("cloud-storage:${env.BUILD_NUMBER}")
+        }
       }
     }
 
     stage("Push Image") {
       steps {
         // 이미지 ECR에 푸시
-        docker.withRegistry("${DOCKER_REGISTRY}/${DOCKER_APP_NAME}", "ecr:ap-northeast-2:${REGISTRY_CREDENTIALS}") {
-          app.push("${VERSION}")
-          app.push("latest")
+        script {
+          docker.withRegistry("${DOCKER_REGISTRY}/${DOCKER_APP_NAME}", "ecr:ap-northeast-2:${REGISTRY_CREDENTIALS}") {
+            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
+          }
         }
       }
     }
