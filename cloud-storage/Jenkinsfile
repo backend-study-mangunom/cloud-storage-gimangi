@@ -5,7 +5,9 @@ pipeline {
 
   environment {
     DOCKER_REGISTRY = "public.ecr.aws/z0t1y8w5"
+    REGION = "us-east-1"
     DOCKER_APP_NAME = "cloud-storage"
+    IMAGE_NAME = "${DOCKER_REGISTRY}/cloud-storage"
     IMAGE_TAG = "latest"
     ROOT_DIR = "cloud-storage"
     // jenkins에서 ECR 권한이 있는 IMA credentials를 등록해야합니다.
@@ -27,7 +29,7 @@ pipeline {
         // 이미지 빌드
         script {
           dir(ROOT_DIR) {
-            app = docker.build("cloud-storage:${env.BUILD_NUMBER}")
+            app = docker.build("${IMAGE_NAME}:${env.BUILD_NUMBER}")
           }
         }
       }
@@ -39,7 +41,7 @@ pipeline {
         script {
           sh "rm -f ~/.dockercfg ~/.docker/config.json || true"
 
-          docker.withRegistry("https://${DOCKER_REGISTRY}", "ecr:us-east-1:${REGISTRY_CREDENTIALS}") {
+          docker.withRegistry("https://${DOCKER_REGISTRY}", "ecr:${REGION}:${REGISTRY_CREDENTIALS}") {
             app.push("${env.BUILD_NUMBER}")
             app.push("latest")
           }
