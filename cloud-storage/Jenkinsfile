@@ -4,7 +4,7 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_REGISTRY = "public.ecr.aws"
+    DOCKER_REGISTRY = "public.ecr.aws/z0t1y8w5"
     DOCKER_APP_NAME = "cloud-storage"
     IMAGE_TAG = "latest"
     ROOT_DIR = "cloud-storage"
@@ -33,14 +33,14 @@ pipeline {
       }
     }
 
-    stage("Push Image") {
+    stage("Push Image to ECR") {
       steps {
         // 이미지 ECR에 푸시
-        script {
+        sh "rm -f ~/.dockercfg ~/.docker/config.json || true"
+
           docker.withRegistry("https://${DOCKER_REGISTRY}", "ecr:us-east-1:${REGISTRY_CREDENTIALS}") {
-            app.push("${DOCKER_APP_NAME}:${env.BUILD_NUMBER}")
-            app.push("${DOCKER_APP_NAME}:latest")
-          }
+            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
         }
       }
     }
