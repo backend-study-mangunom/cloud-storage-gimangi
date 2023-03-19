@@ -4,7 +4,7 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_REGISTRY = "809323333887.dkr.ecr.us-east-1.amazonaws.com/cloud-storage"
+    DOCKER_REGISTRY = "809323333887.dkr.ecr.us-east-1.amazonaws.com"
     REGION = "us-east-1"
     DOCKER_APP_NAME = "cloud-storage"
     IMAGE_NAME = "${DOCKER_REGISTRY}/cloud-storage"
