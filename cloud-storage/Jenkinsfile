@@ -13,18 +13,12 @@ pipeline {
   }
 
   stages {
-    stage("Clone Repository") {
-      steps {
-        // 깃허브 레포지토리 풀
-        checkout scm
-      }
-    }
-
     stage("Build JAR") {
       steps {
         // 디렉토리 이동 및 빌드
         sh """
           cd cloud-storage
+          ls
           ./gradlew clean build
         """
       }
