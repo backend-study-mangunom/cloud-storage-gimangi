@@ -36,11 +36,13 @@ pipeline {
     stage("Push Image to ECR") {
       steps {
         // 이미지 ECR에 푸시
-        sh "rm -f ~/.dockercfg ~/.docker/config.json || true"
+        script {
+          sh "rm -f ~/.dockercfg ~/.docker/config.json || true"
 
           docker.withRegistry("https://${DOCKER_REGISTRY}", "ecr:us-east-1:${REGISTRY_CREDENTIALS}") {
             app.push("${env.BUILD_NUMBER}")
             app.push("latest")
+          }
         }
       }
     }
