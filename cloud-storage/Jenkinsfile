@@ -7,6 +7,7 @@ pipeline {
     DOCKER_REGISTRY = "public.ecr.aws/z0t1y8w5"
     DOCKER_APP_NAME = "cloud-storage"
     IMAGE_TAG = "latest"
+    ROOT_DIR = "cloud-storage"
     // jenkins에서 ECR 권한이 있는 IMA credentials를 등록해야합니다.
     REGISTRY_CREDENTIALS = "gimangi-ecr-credentials"
     PATH = "/usr/bin:${env.PATH}"
@@ -15,12 +16,8 @@ pipeline {
   stages {
     stage("Build JAR") {
       steps {
-        // 디렉토리 이동 및 빌드
-        sh """
-          cd cloud-storage
-          ls
-          ./gradlew clean build
-        """
+        dir(ROOT_DIR)
+        sh "./gradlew clean build"
       }
     }
 
@@ -28,7 +25,9 @@ pipeline {
       steps {
         // 이미지 빌드
         script {
-          app = docker.build("cloud-storage:${env.BUILD_NUMBER}")
+          dir(ROOT_DIR) {
+            app = docker.build("cloud-storage:${env.BUILD_NUMBER}")
+          }
         }
       }
     }
