@@ -16,8 +16,9 @@ pipeline {
   stages {
     stage("Build JAR") {
       steps {
-        dir("${ROOT_DIR}")
-        sh "./gradlew clean build"
+        dir(ROOT_DIR) {
+          sh "./gradlew clean build"
+        }
       }
     }
 
@@ -25,7 +26,7 @@ pipeline {
       steps {
         // 이미지 빌드
         script {
-          dir("${ROOT_DIR}") {
+          dir(ROOT_DIR) {
             app = docker.build("cloud-storage:${env.BUILD_NUMBER}")
           }
         }
