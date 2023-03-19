@@ -37,7 +37,7 @@ pipeline {
       steps {
         // 이미지 ECR에 푸시
         script {
-          docker.withRegistry("https://${DOCKER_REGISTRY}/${DOCKER_APP_NAME}", "ecr:us-east-1:${REGISTRY_CREDENTIALS}") {
+          docker.withRegistry("https://${DOCKER_REGISTRY}", "ecr:us-east-1:${REGISTRY_CREDENTIALS}") {
             app.push("${env.BUILD_NUMBER}")
             app.push("latest")
           }
