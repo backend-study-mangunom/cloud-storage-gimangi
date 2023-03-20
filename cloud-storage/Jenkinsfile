@@ -39,14 +39,12 @@ pipeline {
       steps {
         // 이미지 ECR에 푸시
         script {
-          withAWS(region: REGION) {
-            sh """
-              rm -f ~/.dockercfg ~/.docker/config.json || true
-              aws ecr-public get-login-password --region | docker login --username AWS --password-stdin ${DOCKER_REGISTRY}
-            """
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
-          }
+          sh """
+            rm -f ~/.dockercfg ~/.docker/config.json || true
+            aws ecr-public get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${DOCKER_REGISTRY}
+          """
+          app.push("${env.BUILD_NUMBER}")
+          app.push("latest")
         }
       }
     }
